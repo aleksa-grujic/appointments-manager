@@ -1,10 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import appointmentReducer from '@/redux/slices/appointmentSlice.ts';
 
 export const store = configureStore({
-  reducer: {
-    appointment: appointmentReducer,
-  },
+  reducer: {},
 });
 
 export type RootState = ReturnType<typeof store.getState>;

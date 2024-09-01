@@ -85,10 +85,13 @@ export type Database = {
       }
       appointments: {
         Row: {
+          child_count: string | null
           child_id: string | null
           child_name: string | null
+          child_name2: string | null
+          child_name3: string | null
           created_at: string
-          drink_cost: number | null
+          drink_cost: number[] | null
           end_time: string | null
           free: boolean | null
           id: string
@@ -98,15 +101,19 @@ export type Database = {
           reservation: boolean | null
           start_time: string
           status: string | null
+          table_number: string | null
           type: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          child_count?: string | null
           child_id?: string | null
           child_name?: string | null
+          child_name2?: string | null
+          child_name3?: string | null
           created_at?: string
-          drink_cost?: number | null
+          drink_cost?: number[] | null
           end_time?: string | null
           free?: boolean | null
           id?: string
@@ -116,15 +123,19 @@ export type Database = {
           reservation?: boolean | null
           start_time: string
           status?: string | null
+          table_number?: string | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          child_count?: string | null
           child_id?: string | null
           child_name?: string | null
+          child_name2?: string | null
+          child_name3?: string | null
           created_at?: string
-          drink_cost?: number | null
+          drink_cost?: number[] | null
           end_time?: string | null
           free?: boolean | null
           id?: string
@@ -134,6 +145,7 @@ export type Database = {
           reservation?: boolean | null
           start_time?: string
           status?: string | null
+          table_number?: string | null
           type?: string | null
           updated_at?: string | null
           user_id?: string | null

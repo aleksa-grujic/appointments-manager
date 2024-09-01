@@ -7,12 +7,18 @@ import { useGetAppointments } from '@/api/useGetAppointments.tsx';
 export const Header = () => {
   const { data: appointments, refetch } = useGetAppointments({});
 
-  const totalAppointments = appointments?.length;
-  const ongoingAppointments = appointments?.filter((appointment) => appointment.status === 'ongoing').length;
+  const totalAppointments = appointments?.reduce((acc, appointment) => {
+    return acc + (appointment.child_count ? parseInt(appointment.child_count) : 1);
+  }, 0);
+  const ongoingAppointments = appointments
+    ?.filter((appointment) => appointment.status === 'ongoing')
+    .reduce((acc, appointment) => {
+      return acc + (appointment.child_count ? parseInt(appointment.child_count) : 1);
+    }, 0);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-      <Card className="sm:col-span-2" x-chunk="dashboard-05-chunk-0">
+      <Card className="sm:col-span-2">
         <CardHeader className="pb-3">
           <CardTitle>Praćenje igranja i čuvanja Bubica</CardTitle>
           <CardDescription className="text-balance max-w-lg leading-relaxed">
@@ -26,17 +32,18 @@ export const Header = () => {
           </Button>
         </CardFooter>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardDescription>Trenutno dece u igraonici</CardDescription>
-          <CardTitle className="text-4xl">{ongoingAppointments}</CardTitle>
-        </CardHeader>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardDescription>Ukupno danas</CardDescription>
-          <CardTitle className="text-4xl">{totalAppointments}</CardTitle>
-        </CardHeader>
+      <Card className="sm:col-span-2 p-6">
+        <div className="flex justify-around h-full">
+          <div className="flex flex-col">
+            <p className="text-sm">Trenutno dece</p>
+            <p className="text-3xl mt-2">{ongoingAppointments}</p>
+          </div>
+          <div className="border-r border-gray-200 h-full" />
+          <div className="flex flex-col">
+            <p className="text-sm">Ukupno danas</p>
+            <p className="text-3xl mt-2">{totalAppointments}</p>
+          </div>
+        </div>
       </Card>
     </div>
   );

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { Appointment } from '@/types/appointment.ts';
+import { Tables } from '@/types/supabase.ts';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,7 +20,7 @@ export function getHoursAndMinutes(date: Date, inString = false, separator = ':'
   return inString ? `${hours}${separator}${minutes}` : { hours, minutes };
 }
 
-export function sortAppointmentsByDateAndStatus(appointments: Appointment[]) {
+export function sortAppointmentsByDateAndStatus(appointments: Tables<'appointments'>[]) {
   return appointments.sort((a, b) => {
     if (a.start_time === b.start_time) {
       return a.status === 'ongoing' ? -1 : 1;

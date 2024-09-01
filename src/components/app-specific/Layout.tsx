@@ -8,7 +8,7 @@ export const Layout = ({ children, isAuthPage }: { children: React.ReactNode; is
       {!isAuthPage && <SideMenu />}
       <div className="sm:py-4 sm:pl-14">
         {!isAuthPage && <Header />}
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 ">{children}</main>
+        <main className="grid flex-1 items-start sm:gap-4 sm:p-4 sm:px-6 sm:py-0 ">{children}</main>
         <Toaster richColors />
       </div>
     </div>
