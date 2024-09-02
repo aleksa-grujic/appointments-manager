@@ -1,8 +1,6 @@
 import './App.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Dashboard } from '@/pages/dashboard/Dashboard.tsx';
-import { Provider } from 'react-redux';
-import { store } from '@/redux/store.ts';
 import { Layout } from '@/components/app-specific/Layout.tsx';
 import { Login } from '@/pages/login/Login.tsx';
 import { useEffect, useState } from 'react';
@@ -52,12 +50,10 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <ReactQueryDevtools initialIsOpen={false} position={'right'} />
-        <Layout isAuthPage={!session}>
-          <RouterProvider router={session ? router : authRouter} />
-        </Layout>
-      </Provider>
+      <ReactQueryDevtools initialIsOpen={false} position={'right'} />
+      <Layout isAuthPage={!session}>
+        <RouterProvider router={session ? router : authRouter} />
+      </Layout>
     </QueryClientProvider>
   );
 }

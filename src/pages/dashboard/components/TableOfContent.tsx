@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
 import { useCallback, useMemo } from 'react';
 import { getHoursAndMinutes } from '@/lib/utils.ts';
-import { FilterDropdown } from '@/pages/dashboard/components/FilterDropdown.tsx';
 import { useGetAppointments } from '@/api/useGetAppointments.tsx';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
 import { Tables } from '@/types/supabase.ts';
@@ -66,9 +65,6 @@ export const TableOfContent = () => {
           <TabsTrigger value="play">Igranje</TabsTrigger>
           <TabsTrigger value="babysitting">Čuvanje</TabsTrigger>
         </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-          <FilterDropdown />
-        </div>
       </div>
       <TabsContent value="play">
         <Card x-chunk="dashboard-05-chunk-3">

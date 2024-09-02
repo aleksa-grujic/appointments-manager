@@ -1,14 +1,3 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
@@ -19,6 +8,16 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
 import { formatISO } from 'date-fns';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog.tsx';
 
 export const AddNewInputDialog = () => {
   const minuteRef = React.useRef<HTMLInputElement>(null);
@@ -67,17 +66,17 @@ export const AddNewInputDialog = () => {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button variant="default" onClick={openPopup}>
           Dodaj novi unos
         </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Dodaj novi unos</AlertDialogTitle>
-          <AlertDialogDescription>Unesite podatke o novom unosu</AlertDialogDescription>
-        </AlertDialogHeader>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Dodaj novi unos</DialogTitle>
+          <DialogDescription>Unesite podatke o novom unosu</DialogDescription>
+        </DialogHeader>
 
         <Input
           placeholder={`Unesite ime ${kidCount !== '1' ? 'prvog ' : ''}deteta`}
@@ -173,11 +172,18 @@ export const AddNewInputDialog = () => {
           <Input placeholder="Broj telefona" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
         )}
         <Textarea placeholder="Napomene:" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={cleanup}>Obriši</AlertDialogCancel>
-          <AlertDialogAction onClick={createNewEntry}>Napravi unos</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="destructive" onClick={cleanup}>
+              Obriši
+            </Button>
+          </DialogClose>
+
+          <DialogClose asChild>
+            <Button onClick={createNewEntry}>Napravi unos</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
