@@ -143,7 +143,6 @@ const AppointmentSlip = ({ appointment }: { appointment: Tables<'appointments'> 
   useEffect(() => {
     return () => {
       if (appointment.drink_cost !== drinks) {
-        console.log('this is the drink cost', drinks);
         updateAppointment({
           ...appointment,
           drink_cost: drinks,

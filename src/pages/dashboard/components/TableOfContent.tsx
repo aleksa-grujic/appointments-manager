@@ -1,7 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.tsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
-import { useCallback, useMemo } from 'react';
+import { Fragment, useCallback, useMemo } from 'react';
 import { getHoursAndMinutes } from '@/lib/utils.ts';
 import { useGetAppointments } from '@/api/useGetAppointments.tsx';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
@@ -35,7 +35,7 @@ export const TableOfContent = () => {
 
   const renderTableRowContent = useCallback((appointment: Tables<'appointments'>, index: number) => {
     return (
-      <TableRow className={index % 2 === 0 ? 'bg-accent' : ''} key={appointment.id}>
+      <TableRow className={index % 2 === 0 ? 'bg-accent' : ''}>
         <TableCell>
           <div className="font-medium">{appointment.child_name || '-'}</div>
         </TableCell>
@@ -76,7 +76,9 @@ export const TableOfContent = () => {
             <Table>
               {renderTableHeader()}
               <TableBody>
-                {playAppointments?.map((appointment, index) => <>{renderTableRow(appointment, index)}</>)}
+                {playAppointments?.map((appointment, index) => (
+                  <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
+                ))}
               </TableBody>
             </Table>
           </CardContent>
@@ -92,7 +94,9 @@ export const TableOfContent = () => {
             <Table>
               {renderTableHeader()}
               <TableBody>
-                {babysittingAppointments?.map((appointment, index) => <>{renderTableRow(appointment, index)}</>)}
+                {babysittingAppointments?.map((appointment, index) => (
+                  <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
+                ))}
               </TableBody>
             </Table>
           </CardContent>

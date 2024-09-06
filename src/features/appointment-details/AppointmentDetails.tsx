@@ -1,53 +1,124 @@
 import { SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet.tsx';
 import AppointmentDetailsRow from '@/features/appointment-details/components/AppointmentDetailsRow.tsx';
-import { getHoursAndMinutes } from '@/lib/utils.ts';
 import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Pencil } from 'lucide-react';
-import { Tables } from '@/types/supabase.ts';
+import { Tables, TablesInsert } from '@/types/supabase.ts';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
+import { Form } from '@/components/ui/form.tsx';
+import { clsx } from 'clsx';
+import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
 
 type AppointmentDetailsProps = {
   appointment: Tables<'appointments'>;
 };
 
 const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const { mutate: updateAppointment } = useMutateAppointment(true);
+
+  const form = useForm<TablesInsert<'appointments'>>({
+    values: appointment,
+    resolver: zodResolver(appointmentSchema),
+  });
+
+  const childCount = form.watch('child_count');
+
+  const onSubmit = async (data: TablesInsert<'appointments'>) => {
+    updateAppointment(data);
+  };
+
   return (
-    <TabsContent value="details">
+    <TabsContent
+      value="details"
+      className={clsx({
+        'mb-16': isEditing,
+      })}
+    >
       <SheetHeader className="mb-3">
         <SheetTitle>
           <div className="flex justify-between items-center">
             <span>Detalji termina</span>
-            <Button variant="ghost" className="p-1 w-7 h-7" onClick={() => {}}>
+            <Button variant="ghost" className="p-1 w-7 h-7" onClick={() => setIsEditing(!isEditing)}>
               <Pencil className="size-4" />
             </Button>
           </div>
         </SheetTitle>
         <SheetDescription>Detalji termina koji je u toku ili završen.</SheetDescription>
       </SheetHeader>
-      <AppointmentDetailsRow label="Ime deteta" value={appointment.child_name} />
-      {appointment.child_count === '2' ||
-        (appointment.child_count === '3' && (
-          <AppointmentDetailsRow label="Ime drugog deteta" value={appointment.child_name2} />
-        ))}
-      {appointment.child_count === '3' && (
-        <AppointmentDetailsRow label="Ime trećeg deteta" value={appointment.child_name3} />
-      )}
-      <AppointmentDetailsRow label="Broj stola" value={appointment.table_number} />
-      <AppointmentDetailsRow label="Ime roditelja" value={appointment.parent_name} />
-      <AppointmentDetailsRow label="Broj telefona" value={appointment.phone_number} />
-      <AppointmentDetailsRow label="Tip termina" value={appointment.type === 'play' ? 'Igranje' : 'Čuvanje'} />
-      <AppointmentDetailsRow label="Status termina" value={appointment.status === 'ongoing' ? 'U toku' : 'Završen'} />
-      <AppointmentDetailsRow
-        label="Vreme dolaska"
-        value={getHoursAndMinutes(new Date(appointment.start_time), true) as string}
-      />
-      {appointment.end_time && (
+      <Form {...form}>
         <AppointmentDetailsRow
-          label="Vreme odlaska"
-          value={getHoursAndMinutes(new Date(appointment.end_time), true) as string}
+          edit={isEditing}
+          label="Status termina"
+          control={form.control}
+          name="status"
+          type="select"
+          options={[
+            { label: 'U toku', value: 'ongoing' },
+            { label: 'Završen', value: 'finished' },
+          ]}
         />
-      )}
-      {appointment.notes && <AppointmentDetailsRow label="Napomena" value={appointment.notes} />}
+        <AppointmentDetailsRow
+          label="Vreme dolaska"
+          control={form.control}
+          name="start_time"
+          edit={isEditing}
+          type={'time'}
+        />
+        {appointment.status === 'finished' && (
+          <AppointmentDetailsRow
+            label="Vreme odlaska"
+            control={form.control}
+            name="end_time"
+            edit={isEditing}
+            type={'time'}
+          />
+        )}
+        <AppointmentDetailsRow
+          name={'child_count'}
+          control={form.control}
+          label={'Broj dece'}
+          edit={isEditing}
+          type={'toggle'}
+          options={[
+            { label: '1', value: '1' },
+            { label: '2', value: '2' },
+            { label: '3', value: '3' },
+          ]}
+        />
+        <AppointmentDetailsRow label="Ime deteta" control={form.control} name="child_name" edit={isEditing} />
+        {(childCount === '2' || childCount === '3') && (
+          <AppointmentDetailsRow label="Ime drugog deteta" control={form.control} name="child_name2" edit={isEditing} />
+        )}
+        {childCount === '3' && (
+          <AppointmentDetailsRow label="Ime trećeg deteta" control={form.control} name="child_name3" edit={isEditing} />
+        )}
+        <AppointmentDetailsRow label="Broj stola" control={form.control} name="table_number" edit={isEditing} />
+        <AppointmentDetailsRow label="Ime roditelja" control={form.control} name="parent_name" edit={isEditing} />
+        <AppointmentDetailsRow label="Broj telefona" control={form.control} name="phone_number" edit={isEditing} />
+        <AppointmentDetailsRow
+          edit={isEditing}
+          label="Tip termina"
+          control={form.control}
+          name="type"
+          type="select"
+          options={[
+            { label: 'Igranje', value: 'play' },
+            { label: 'Čuvanje', value: 'babysitting' },
+          ]}
+        />
+        <AppointmentDetailsRow label="Beleška" control={form.control} name="notes" edit={isEditing} type={'textarea'} />
+        {isEditing && (
+          <div className={'absolute bottom-0 left-0 p-2 bg-white w-full'}>
+            <Button onClick={form.handleSubmit(onSubmit)} variant="default" className="mt-4 w-full">
+              Sačuvaj
+            </Button>
+          </div>
+        )}
+      </Form>
     </TabsContent>
   );
 };
