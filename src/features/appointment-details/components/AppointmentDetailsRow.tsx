@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import React from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
+import { formatISO } from 'date-fns';
 
 type AppointmentDetailsRowProps<T extends FieldValues> = {
   edit?: boolean;
@@ -82,7 +83,7 @@ const AppointmentDetailsRow = <T extends FieldValues>({
               <TimePickerInput
                 picker="hours"
                 date={new Date(field.value)}
-                setDate={(date) => field.onChange(date)}
+                setDate={(date) => field.onChange(formatISO(date))}
                 ref={hourRef}
                 onRightFocus={() => minuteRef.current?.focus()}
                 disabled={!edit}
@@ -92,7 +93,7 @@ const AppointmentDetailsRow = <T extends FieldValues>({
               <TimePickerInput
                 picker="minutes"
                 date={new Date(field.value)}
-                setDate={(date) => field.onChange(date)}
+                setDate={(date) => field.onChange(formatISO(date))}
                 ref={minuteRef}
                 onLeftFocus={() => hourRef.current?.focus()}
                 disabled={!edit}
@@ -107,6 +108,7 @@ const AppointmentDetailsRow = <T extends FieldValues>({
             value={field.value}
             onValueChange={(count) => field.onChange(count)}
             className="justify-start"
+            disabled={!edit}
           >
             {options?.map((option) => (
               <ToggleGroupItem value={option.value} aria-label={option.label} key={option.value}>
@@ -123,7 +125,12 @@ const AppointmentDetailsRow = <T extends FieldValues>({
       <FormField
         control={control}
         render={({ field }) => (
-          <FormItem className={'flex justify-between items-center py-2 flex-wrap space-y-0'}>
+          <FormItem
+            className={clsx({
+              'flex justify-between items-center py-2 flex-nowrap space-y-0': true,
+              'flex-wrap': type === 'textarea',
+            })}
+          >
             <FormLabel>{label}</FormLabel>
             <FormControl>{renderInput(field)}</FormControl>
           </FormItem>

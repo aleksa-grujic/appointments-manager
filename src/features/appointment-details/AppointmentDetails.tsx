@@ -11,12 +11,14 @@ import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
 import { Form } from '@/components/ui/form.tsx';
 import { clsx } from 'clsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
+import { formatISO } from 'date-fns';
 
 type AppointmentDetailsProps = {
   appointment: Tables<'appointments'>;
+  onClose: () => void;
 };
 
-const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
+const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateAppointment } = useMutateAppointment(true);
 
@@ -28,7 +30,8 @@ const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
   const childCount = form.watch('child_count');
 
   const onSubmit = async (data: TablesInsert<'appointments'>) => {
-    updateAppointment(data);
+    updateAppointment({ appointment: { ...data, start_time: formatISO(data.start_time) } });
+    onClose();
   };
 
   return (
@@ -51,7 +54,7 @@ const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
       </SheetHeader>
       <Form {...form}>
         <AppointmentDetailsRow
-          edit={isEditing}
+          edit={false}
           label="Status termina"
           control={form.control}
           name="status"

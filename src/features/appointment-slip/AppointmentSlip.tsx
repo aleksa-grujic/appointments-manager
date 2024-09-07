@@ -2,7 +2,7 @@ import { Label } from '@/components/ui/label.tsx';
 import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
 import { dateSecondsTo0, getHoursRoundedTo30 } from '@/lib/utils.ts';
@@ -44,7 +44,7 @@ const regularBabysitting: Product = {
   duration: 1,
 };
 
-const AppointmentSlip = ({ appointment }: { appointment: Tables<'appointments'> }) => {
+const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appointments'>; onClose: () => void }) => {
   const startMinuteRef = React.useRef<HTMLInputElement>(null);
   const startHourRef = React.useRef<HTMLInputElement>(null);
 
@@ -111,7 +111,8 @@ const AppointmentSlip = ({ appointment }: { appointment: Tables<'appointments'> 
       status: 'completed',
       drink_cost: drinks.map((drink) => Number(drink)),
     };
-    updateAppointment(finishedAppointment);
+    updateAppointment({ appointment: finishedAppointment });
+    onClose();
   }, [appointment, isFree, endDate, drinks, updateAppointment]);
 
   const openDrinkInput = () => {
@@ -125,6 +126,14 @@ const AppointmentSlip = ({ appointment }: { appointment: Tables<'appointments'> 
   const addDrink = () => {
     if (Number(drinkCost) > 0) {
       setDrinks([...drinks, Number(drinkCost)]);
+
+      updateAppointment({
+        appointment: {
+          ...appointment,
+          drink_cost: [...drinks, Number(drinkCost)],
+        },
+        disableToast: true,
+      });
     }
     setDrinkCost('');
     setShowDrinkInput(false);
@@ -138,18 +147,15 @@ const AppointmentSlip = ({ appointment }: { appointment: Tables<'appointments'> 
   const removeDrink = (index: number) => {
     const newDrinks = drinks.filter((_, i) => i !== index);
     setDrinks(newDrinks);
-  };
 
-  useEffect(() => {
-    return () => {
-      if (appointment.drink_cost !== drinks) {
-        updateAppointment({
-          ...appointment,
-          drink_cost: drinks,
-        });
-      }
-    };
-  }, [drinks]);
+    updateAppointment({
+      appointment: {
+        ...appointment,
+        drink_cost: newDrinks,
+      },
+      disableToast: true,
+    });
+  };
 
   return (
     <TabsContent value="slip">

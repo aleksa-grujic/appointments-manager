@@ -50,17 +50,19 @@ export const AddNewInputDialog = () => {
   };
   const createNewEntry = () => {
     addAppointment({
-      start_time: formatISO(date),
-      child_name: kidName1,
-      type: isBabysitting ? 'babysitting' : 'play',
-      status: 'ongoing',
-      notes: notes,
-      phone_number: phoneNumber,
-      parent_name: parentName,
-      child_count: kidCount,
-      child_name2: kidName2,
-      child_name3: kidName3,
-      table_number: tableNumber,
+      appointment: {
+        start_time: formatISO(date),
+        child_name: kidName1,
+        type: isBabysitting ? 'babysitting' : 'play',
+        status: 'ongoing',
+        notes: notes,
+        phone_number: phoneNumber,
+        parent_name: parentName,
+        child_count: kidCount,
+        child_name2: kidName2,
+        child_name3: kidName3,
+        table_number: tableNumber,
+      },
     });
     cleanup();
   };

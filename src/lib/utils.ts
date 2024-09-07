@@ -22,9 +22,18 @@ export function getHoursAndMinutes(date: Date, inString = false, separator = ':'
 
 export function sortAppointmentsByDateAndStatus(appointments: Tables<'appointments'>[]) {
   return appointments.sort((a, b) => {
-    if (a.start_time === b.start_time) {
-      return a.status === 'ongoing' ? -1 : 1;
+    if (a.end_time && b.end_time) {
+      return new Date(a.end_time).getTime() - new Date(b.end_time).getTime();
     }
+
+    if (a.end_time) {
+      return 1;
+    }
+
+    if (b.end_time) {
+      return -1;
+    }
+
     return new Date(b.start_time).getTime() - new Date(a.start_time).getTime();
   });
 }

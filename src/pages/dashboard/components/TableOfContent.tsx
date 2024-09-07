@@ -6,6 +6,7 @@ import { getHoursAndMinutes } from '@/lib/utils.ts';
 import { useGetAppointments } from '@/api/useGetAppointments.tsx';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
 import { Tables } from '@/types/supabase.ts';
+import { clsx } from 'clsx';
 
 export const TableOfContent = () => {
   const { data: appointments } = useGetAppointments({});
@@ -27,7 +28,7 @@ export const TableOfContent = () => {
           <TableHead>Broj stola</TableHead>
           <TableHead className="hidden sm:table-cell">Status</TableHead>
           <TableHead>Vreme dolaska</TableHead>
-          <TableHead className="hidden md:table-cell">Vreme odlaska</TableHead>
+          <TableHead>Vreme odlaska</TableHead>
         </TableRow>
       </TableHeader>
     );
@@ -35,7 +36,12 @@ export const TableOfContent = () => {
 
   const renderTableRowContent = useCallback((appointment: Tables<'appointments'>, index: number) => {
     return (
-      <TableRow className={index % 2 === 0 ? 'bg-accent' : ''}>
+      <TableRow
+        className={clsx({
+          'bg-accent': index % 2 === 0,
+          'bg-green-100': appointment.status === 'completed',
+        })}
+      >
         <TableCell>
           <div className="font-medium">{appointment.child_name || '-'}</div>
         </TableCell>
@@ -44,7 +50,7 @@ export const TableOfContent = () => {
           {appointment.status === 'ongoing' ? 'U toku' : 'Završeno'}
         </TableCell>
         <TableCell>{`${getHoursAndMinutes(new Date(appointment.start_time), true)}`}</TableCell>
-        <TableCell className="hidden sm:table-cell">
+        <TableCell>
           {appointment.end_time ? `${getHoursAndMinutes(new Date(appointment.end_time), true)}` : '-'}
         </TableCell>
       </TableRow>
