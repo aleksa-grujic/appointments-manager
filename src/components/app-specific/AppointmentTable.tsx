@@ -3,14 +3,38 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
 import { Fragment, useCallback, useMemo } from 'react';
 import { getHoursAndMinutes } from '@/lib/utils.ts';
-import { useGetAppointments } from '@/api/useGetAppointments.ts';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { clsx } from 'clsx';
 
-export const TableOfContent = () => {
-  const { data: appointments } = useGetAppointments({});
+export const SkeletonRow = () => {
+  return (
+    <TableRow className="animate-pulse">
+      <TableCell>
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </TableCell>
+      <TableCell>
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </TableCell>
+      <TableCell className="hidden sm:table-cell">
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </TableCell>
+      <TableCell>
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </TableCell>
+      <TableCell>
+        <div className="h-4 bg-gray-300 rounded"></div>
+      </TableCell>
+    </TableRow>
+  );
+};
 
+type AppointmentTableProps = {
+  appointments: Tables<'appointments'>[] | undefined;
+  isLoading: boolean;
+};
+
+export const AppointmentTable = ({ appointments, isLoading }: AppointmentTableProps) => {
   const playAppointments = useMemo(
     () => appointments?.filter((appointment) => appointment.type === 'play'),
     [appointments],
@@ -43,7 +67,27 @@ export const TableOfContent = () => {
         })}
       >
         <TableCell>
-          <div className="font-medium">{appointment.child_name || '-'}</div>
+          <div className="font-medium">
+            {appointment.child_name || '-'}
+
+            {appointment.child_count === '2' ? (
+              <>
+                <br />
+                {appointment.child_name2 || '-'}
+              </>
+            ) : (
+              ''
+            )}
+            <br />
+            {appointment.child_count === '3' ? (
+              <>
+                <br />
+                {appointment.child_name3 || '-'}
+              </>
+            ) : (
+              ''
+            )}
+          </div>
         </TableCell>
         <TableCell>{appointment.table_number || '-'}</TableCell>
         <TableCell className="hidden sm:table-cell">
@@ -73,7 +117,7 @@ export const TableOfContent = () => {
         </TabsList>
       </div>
       <TabsContent value="play">
-        <Card x-chunk="dashboard-05-chunk-3">
+        <Card>
           <CardHeader className="px-7">
             <CardTitle>Igranje</CardTitle>
             <CardDescription>Deca koja su na igranju</CardDescription>
@@ -82,16 +126,18 @@ export const TableOfContent = () => {
             <Table>
               {renderTableHeader()}
               <TableBody>
-                {playAppointments?.map((appointment, index) => (
-                  <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
-                ))}
+                {isLoading
+                  ? Array.from({ length: 5 }).map((_, index) => <SkeletonRow key={index} />)
+                  : playAppointments?.map((appointment, index) => (
+                      <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
+                    ))}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       </TabsContent>
       <TabsContent value="babysitting">
-        <Card x-chunk="dashboard-05-chunk-3">
+        <Card>
           <CardHeader className="px-7">
             <CardTitle>Čuvanje</CardTitle>
             <CardDescription>Deca koja su na čuvanju</CardDescription>
@@ -100,9 +146,11 @@ export const TableOfContent = () => {
             <Table>
               {renderTableHeader()}
               <TableBody>
-                {babysittingAppointments?.map((appointment, index) => (
-                  <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
-                ))}
+                {isLoading
+                  ? Array.from({ length: 5 }).map((_, index) => <SkeletonRow key={index} />)
+                  : babysittingAppointments?.map((appointment, index) => (
+                      <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
+                    ))}
               </TableBody>
             </Table>
           </CardContent>

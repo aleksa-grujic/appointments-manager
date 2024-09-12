@@ -2,12 +2,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { login } from '@/api/auth.ts';
+import { useNavigate } from 'react-router-dom';
+import { useSession } from '@/context/SessionContext.tsx';
 
 export const Login = () => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const navigate = useNavigate();
+  const { session, isLoading } = useSession();
+
+  useEffect(() => {
+    if (session && !isLoading) {
+      navigate('/');
+    }
+  }, [session, isLoading]);
 
   const handleSubmit = async () => {
     login(email, password);
