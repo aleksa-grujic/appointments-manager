@@ -4,7 +4,7 @@ import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button.tsx';
-import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
+import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
 import { dateSecondsTo0, getHoursRoundedTo30 } from '@/lib/utils.ts';
 import { formatISO } from 'date-fns';
 import { Input } from '@/components/ui/input.tsx';

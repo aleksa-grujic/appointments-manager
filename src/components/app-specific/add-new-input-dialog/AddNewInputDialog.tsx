@@ -5,7 +5,7 @@ import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
+import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
 import { formatISO } from 'date-fns';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import {

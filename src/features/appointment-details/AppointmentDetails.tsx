@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
 import { Form } from '@/components/ui/form.tsx';
 import { clsx } from 'clsx';
-import { useMutateAppointment } from '@/api/useMutateAppointment.tsx';
+import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
 import { formatISO } from 'date-fns';
 
 type AppointmentDetailsProps = {

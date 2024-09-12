@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table.tsx';
 import { Fragment, useCallback, useMemo } from 'react';
 import { getHoursAndMinutes } from '@/lib/utils.ts';
-import { useGetAppointments } from '@/api/useGetAppointments.tsx';
+import { useGetAppointments } from '@/api/useGetAppointments.ts';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { clsx } from 'clsx';
