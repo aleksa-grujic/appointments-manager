@@ -24,14 +24,14 @@ type Product = {
 const regularPlay: Product = {
   name: 'regular-play',
   displayName: 'Igranje',
-  price: 350,
+  price: 300,
   duration: 1.5,
   count: 1,
 };
 
 const specialPlay: Product = {
   name: 'special-play',
-  displayName: 'Specijalno igranje',
+  displayName: 'Mini igranje',
   price: 100,
   duration: 0.5,
   count: 1,
