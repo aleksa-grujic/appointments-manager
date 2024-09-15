@@ -13,6 +13,7 @@ const getAppointments = async (startDate = new Date(), endDate = new Date()) => 
   const { data, error } = await supabase
     .from('appointments')
     .select()
+    .filter('status', 'neq', 'deleted')
     .gte('start_time', startDayTimestamp)
     .lte('start_time', endDayTimestamp);
 

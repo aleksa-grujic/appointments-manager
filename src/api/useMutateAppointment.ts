@@ -27,7 +27,7 @@ const updateAppointment = async (appointment: TablesUpdate<'appointments'>) => {
 };
 
 const mutateCacheAppointment = (queryClient: QueryClient, isUpdate: boolean, appointment: Tables<'appointments'>) => {
-  queryClient.setQueryData(['appointments'], (old: Tables<'appointments'>[] | undefined) => {
+  queryClient.setQueriesData({ queryKey: ['appointments'] }, (old: Tables<'appointments'>[] | undefined) => {
     if (!old) {
       return [appointment];
     }

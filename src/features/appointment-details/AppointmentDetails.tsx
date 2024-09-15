@@ -12,6 +12,7 @@ import { Form } from '@/components/ui/form.tsx';
 import { clsx } from 'clsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
 import { formatISO } from 'date-fns';
+import { useDeleteAppointment } from '@/api/useDeleteAppointments.ts';
 
 type AppointmentDetailsProps = {
   appointment: Tables<'appointments'>;
@@ -21,6 +22,7 @@ type AppointmentDetailsProps = {
 const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateAppointment } = useMutateAppointment(true);
+  const { mutate: deleteAppointment } = useDeleteAppointment();
 
   const form = useForm<TablesInsert<'appointments'>>({
     values: appointment,
@@ -126,6 +128,9 @@ const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
         />
         <AppointmentDetailsRow label="Beleška" control={form.control} name="notes" edit={isEditing} type={'textarea'} />
       </Form>
+      <Button variant="destructive" className="w-full mt-8" onClick={() => deleteAppointment(appointment.id)}>
+        Obriši termin
+      </Button>
     </TabsContent>
   );
 };
