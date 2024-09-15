@@ -4,7 +4,7 @@ import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Pencil } from 'lucide-react';
 import { Tables, TablesInsert } from '@/types/supabase.ts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
@@ -18,7 +18,7 @@ type AppointmentDetailsProps = {
   onClose: () => void;
 };
 
-const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsProps) => {
+const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateAppointment } = useMutateAppointment(true);
 
@@ -29,10 +29,21 @@ const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsProps) =
 
   const childCount = form.watch('child_count');
 
-  const onSubmit = async (data: TablesInsert<'appointments'>) => {
-    updateAppointment({ appointment: { ...data, start_time: formatISO(data.start_time) } });
-    onClose();
-  };
+  useEffect(() => {
+    const onSubmit = async (data: TablesInsert<'appointments'>) => {
+      updateAppointment({ appointment: { ...data, start_time: formatISO(data.start_time) } });
+    };
+
+    // on close form, if form is dirty, submit it
+    if (!isEditing && form.formState.isDirty) {
+      form.handleSubmit(onSubmit)();
+    }
+    return () => {
+      if (form.formState.isDirty) {
+        form.handleSubmit(onSubmit)();
+      }
+    };
+  }, [form, isEditing, updateAppointment]);
 
   return (
     <TabsContent
@@ -114,13 +125,6 @@ const AppointmentDetails = ({ appointment, onClose }: AppointmentDetailsProps) =
           ]}
         />
         <AppointmentDetailsRow label="Beleška" control={form.control} name="notes" edit={isEditing} type={'textarea'} />
-        {isEditing && (
-          <div className={'absolute bottom-0 left-0 p-2 bg-white w-full'}>
-            <Button onClick={form.handleSubmit(onSubmit)} variant="default" className="mt-4 w-full">
-              Sačuvaj
-            </Button>
-          </div>
-        )}
       </Form>
     </TabsContent>
   );

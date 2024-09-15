@@ -5,48 +5,16 @@ import { Separator } from '@/components/ui/separator.tsx';
 import React, { useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
-import { dateSecondsTo0, getHoursRoundedTo30 } from '@/lib/utils.ts';
 import { formatISO } from 'date-fns';
 import { Input } from '@/components/ui/input.tsx';
 import { Plus, X } from 'lucide-react';
 import { SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet.tsx';
 import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Tables } from '@/types/supabase.ts';
-
-type Product = {
-  name: string;
-  displayName: string;
-  price: number;
-  duration: number;
-  count?: number;
-};
-
-const regularPlay: Product = {
-  name: 'regular-play',
-  displayName: 'Igranje',
-  price: 300,
-  duration: 1.5,
-  count: 1,
-};
-
-const specialPlay: Product = {
-  name: 'special-play',
-  displayName: 'Mini igranje',
-  price: 100,
-  duration: 0.5,
-  count: 1,
-};
-
-const regularBabysitting: Product = {
-  name: 'regular-babysitting',
-  displayName: 'Čuvanje',
-  price: 500,
-  duration: 1,
-};
+import { calculatePrice, calculateProducts, calculateTotalHours } from '@/lib/calculate_price.ts';
 
 const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appointments'>; onClose: () => void }) => {
   const isFinished = appointment.status === 'completed';
-  const childCount = Number(appointment.child_count);
 
   const startMinuteRef = React.useRef<HTMLInputElement>(null);
   const startHourRef = React.useRef<HTMLInputElement>(null);
@@ -54,7 +22,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
   const endMinuteRef = React.useRef<HTMLInputElement>(null);
   const endHourRef = React.useRef<HTMLInputElement>(null);
 
-  const [startDateTime, setStartDate] = React.useState(new Date(appointment.start_time));
+  const [startDate, setStartDate] = React.useState(new Date(appointment.start_time));
   const [endDate, setEndDate] = React.useState<Date>(() => {
     if (appointment.end_time) {
       return new Date(appointment.end_time);
@@ -66,50 +34,27 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
   const [drinkCost, setDrinkCost] = React.useState('');
 
   const [showDrinkInput, setShowDrinkInput] = React.useState(false);
-
-  const [drinks, setDrinks] = React.useState<number[]>(appointment.drink_cost || []);
+  const [showInitialSlipInput, setShowInitialSlipInput] = React.useState(false);
+  const [initialSlip, setInitialSlip] = React.useState('');
 
   const { mutate: updateAppointment } = useMutateAppointment(true);
 
   const typeContentName = appointment.type === 'play' ? 'igranje' : 'čuvanje';
 
   const totalHours = useMemo(() => {
-    const diff = dateSecondsTo0(endDate).getTime() - dateSecondsTo0(startDateTime).getTime();
-    // round to 30 minutes interval but if it's exactly hour round to 1
-    return getHoursRoundedTo30(diff);
-  }, [endDate, startDateTime]);
+    return calculateTotalHours(appointment, startDate, endDate);
+  }, [appointment, startDate, endDate]);
 
   const products = useMemo(() => {
-    if (appointment.type === 'babysitting') {
-      const hours = totalHours <= 1 ? 1 : Math.ceil(totalHours);
-      return [
-        {
-          ...regularBabysitting,
-          count: hours * childCount,
-        },
-      ];
-    }
-    const products: Product[] = [{ ...regularPlay, count: childCount }];
-    if (totalHours > 1.5) {
-      const specialHours = totalHours - regularPlay.duration;
-      const specialPlayCount = Math.ceil(specialHours / specialPlay.duration);
-
-      products.push({
-        ...specialPlay,
-        count: specialPlayCount * childCount,
-      });
-    }
-    return products;
-  }, [totalHours, appointment.type, childCount]);
+    return calculateProducts(appointment, totalHours);
+  }, [appointment, totalHours]);
 
   const totalPrice = useMemo(() => {
     if (isFree) {
       return '0';
     }
-    const drinksPrice = drinks.reduce((acc, drink) => acc + Number(drink), 0);
-    const productsPrice = products.reduce((acc, product) => acc + product.price * (product.count || 1), 0);
-    return (drinksPrice + productsPrice).toFixed(0);
-  }, [isFree, drinks, products]);
+    return calculatePrice(appointment, products);
+  }, [appointment, isFree, products]);
 
   const finishAppointment = useCallback(() => {
     const finishedAppointment: Tables<'appointments'> = {
@@ -118,11 +63,25 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
       end_time: formatISO(endDate),
       updated_at: formatISO(new Date()),
       status: 'completed',
-      drink_cost: drinks.map((drink) => Number(drink)),
     };
     updateAppointment({ appointment: finishedAppointment });
     onClose();
-  }, [appointment, isFree, endDate, drinks, updateAppointment, onClose]);
+  }, [appointment, isFree, endDate, updateAppointment, onClose]);
+
+  const addInitialSlip = () => {
+    const productsPrice = products.reduce((acc, product) => acc + product.price * (product.count || 1), 0);
+    const initialCostOfDrinks = Number(initialSlip) - productsPrice;
+    updateAppointment({
+      appointment: {
+        ...appointment,
+        drink_cost: [...(appointment.drink_cost || []), initialCostOfDrinks],
+      },
+      disableToast: true,
+    });
+
+    setInitialSlip('');
+    setShowInitialSlipInput(false);
+  };
 
   const openDrinkInput = () => {
     if (showDrinkInput) {
@@ -132,14 +91,25 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
     }
   };
 
+  const closeInitialSlipInput = () => {
+    setShowInitialSlipInput(false);
+    setInitialSlip('');
+  };
+
+  const openInitialSlipInput = () => {
+    if (showInitialSlipInput) {
+      addInitialSlip();
+    } else {
+      setShowInitialSlipInput(true);
+    }
+  };
+
   const addDrink = () => {
     if (Number(drinkCost) > 0) {
-      setDrinks([...drinks, Number(drinkCost)]);
-
       updateAppointment({
         appointment: {
           ...appointment,
-          drink_cost: [...drinks, Number(drinkCost)],
+          drink_cost: [...(appointment.drink_cost || []), Number(drinkCost)],
         },
         disableToast: true,
       });
@@ -154,13 +124,10 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
   };
 
   const removeDrink = (index: number) => {
-    const newDrinks = drinks.filter((_, i) => i !== index);
-    setDrinks(newDrinks);
-
     updateAppointment({
       appointment: {
         ...appointment,
-        drink_cost: newDrinks,
+        drink_cost: appointment.drink_cost?.filter((_, i) => i !== index),
       },
       disableToast: true,
     });
@@ -180,7 +147,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
               <div className="grid gap-1 text-center">
                 <TimePickerInput
                   picker="hours"
-                  date={startDateTime}
+                  date={startDate}
                   setDate={setStartDate}
                   ref={startHourRef}
                   disabled
@@ -190,7 +157,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
               <div className="grid gap-1 text-center">
                 <TimePickerInput
                   picker="minutes"
-                  date={startDateTime}
+                  date={startDate}
                   setDate={setStartDate}
                   ref={startMinuteRef}
                   disabled
@@ -253,7 +220,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
                 <span className={'text-right italic font-light'}>{product.price * (product.count || 1)} din</span>
               </React.Fragment>
             ))}
-            {drinks.map((drink, index) => (
+            {appointment.drink_cost?.map((drink, index) => (
               <React.Fragment key={drink + index}>
                 <span className={'italic font-light'}>Piće</span>
                 <span className="gap-2 flex justify-end items-center col-span-2">
@@ -274,6 +241,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
                   <Input
                     type="number"
                     placeholder="0"
+                    min={0}
                     onChange={(e) => setDrinkCost(e.target.value)}
                     value={drinkCost}
                     className="w-20 h-5 px-2"
@@ -289,6 +257,29 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
             )}
           </div>
         </div>
+        {showInitialSlipInput && (
+          <div className="flex gap-4 px-1">
+            <Input
+              type="number"
+              placeholder="0"
+              min={0}
+              onChange={(e) => setInitialSlip(e.target.value)}
+              value={initialSlip}
+            />
+            <Button variant="destructive" className="p-0 w-10" onClick={closeInitialSlipInput}>
+              <X className="size-6" />
+            </Button>
+          </div>
+        )}
+        <Button
+          type="button"
+          variant={!showInitialSlipInput ? 'outline' : 'default'}
+          className={'w-full'}
+          disabled={isFinished}
+          onClick={openInitialSlipInput}
+        >
+          {showInitialSlipInput ? 'Unesi cenu prvog računa' : 'Dodaj cenu prvog računa'}
+        </Button>
         <Button type="button" variant="outline" className={'w-full'} disabled={isFinished} onClick={openDrinkInput}>
           Dodaj cenu pića
         </Button>

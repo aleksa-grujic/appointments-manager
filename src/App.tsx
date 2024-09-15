@@ -9,6 +9,7 @@ import { Dashboard } from '@/pages/dashboard/Dashboard.tsx';
 import { SessionProvider } from '@/context/SessionContext.tsx';
 import { ProtectedRoute } from '@/components/app-specific/ProtectedRoute.tsx';
 import { Reports } from '@/pages/reports/Reports.tsx';
+import { ThemeProvider } from '@/context/ThemeContext.tsx';
 
 const router = createBrowserRouter([
   {
@@ -47,11 +48,13 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} position={'right'} />
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} position={'right'} />
 
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
+      </ThemeProvider>
     </SessionProvider>
   );
 }

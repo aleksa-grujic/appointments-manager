@@ -6,24 +6,29 @@ import { getHoursAndMinutes } from '@/lib/utils.ts';
 import { AppointmentSheet } from '@/features/appointment-sheet/AppointmentSheet.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { clsx } from 'clsx';
+import { calculatePrice } from '@/lib/calculate_price.ts';
+import { formatISO } from 'date-fns';
+import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
+import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button.tsx';
 
 export const SkeletonRow = () => {
   return (
     <TableRow className="animate-pulse">
       <TableCell>
-        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-800 rounded"></div>
       </TableCell>
       <TableCell>
-        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-800 rounded"></div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-800 rounded"></div>
       </TableCell>
       <TableCell>
-        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-800 rounded"></div>
       </TableCell>
       <TableCell>
-        <div className="h-4 bg-gray-300 rounded"></div>
+        <div className="h-4 bg-gray-300 dark:bg-gray-800 rounded"></div>
       </TableCell>
     </TableRow>
   );
@@ -35,6 +40,8 @@ type AppointmentTableProps = {
 };
 
 export const AppointmentTable = ({ appointments, isLoading }: AppointmentTableProps) => {
+  const { mutate: updateAppointment } = useMutateAppointment(true);
+
   const playAppointments = useMemo(
     () => appointments?.filter((appointment) => appointment.type === 'play'),
     [appointments],
@@ -43,6 +50,20 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
     () => appointments?.filter((appointment) => appointment.type === 'babysitting'),
     [appointments],
   );
+
+  const finishAppointment = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    appointment: Tables<'appointments'>,
+  ) => {
+    e.stopPropagation();
+    const finishedAppointment = {
+      ...appointment,
+      status: 'completed',
+      end_time: formatISO(new Date()),
+      updated_at: formatISO(new Date()),
+    };
+    updateAppointment({ appointment: finishedAppointment });
+  };
 
   const renderTableHeader = useCallback(() => {
     return (
@@ -53,6 +74,8 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
           <TableHead className="hidden sm:table-cell">Status</TableHead>
           <TableHead>Vreme dolaska</TableHead>
           <TableHead>Vreme odlaska</TableHead>
+          <TableHead>Račun</TableHead>
+          <TableHead>Akcije</TableHead>
         </TableRow>
       </TableHeader>
     );
@@ -70,7 +93,7 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
           <div className="font-medium">
             {appointment.child_name || '-'}
 
-            {appointment.child_count === '2' ? (
+            {appointment.child_count === '2' || appointment.child_count === '3' ? (
               <>
                 <br />
                 {appointment.child_name2 || '-'}
@@ -78,7 +101,6 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
             ) : (
               ''
             )}
-            <br />
             {appointment.child_count === '3' ? (
               <>
                 <br />
@@ -96,6 +118,14 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
         <TableCell>{`${getHoursAndMinutes(new Date(appointment.start_time), true)}`}</TableCell>
         <TableCell>
           {appointment.end_time ? `${getHoursAndMinutes(new Date(appointment.end_time), true)}` : '-'}
+        </TableCell>
+        <TableCell>{calculatePrice(appointment)} din</TableCell>
+        <TableCell>
+          {appointment.status === 'ongoing' && (
+            <Button variant="outline" className="p-0 w-10" onClick={(e) => finishAppointment(e, appointment)}>
+              <Check className={'w-6'} />
+            </Button>
+          )}
         </TableCell>
       </TableRow>
     );
