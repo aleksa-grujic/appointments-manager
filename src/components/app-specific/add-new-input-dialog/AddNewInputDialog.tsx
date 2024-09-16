@@ -13,7 +13,6 @@ import {
   DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -67,6 +66,27 @@ export const AddNewInputDialog = () => {
     cleanup();
   };
 
+  // const formContainerRef = useRef<HTMLDivElement | null>(null);
+  //
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     if (formContainerRef.current) {
+  //       formContainerRef.current.style.setProperty('bottom', `env(safe-area-inset-bottom)`);
+  //     }
+  //   };
+  //
+  //   if (window.visualViewport) {
+  //     window.visualViewport.addEventListener('resize', handleResize);
+  //     handleResize(); // Initial call in case the keyboard is already open
+  //   }
+  //
+  //   return () => {
+  //     if (window.visualViewport) {
+  //       window.visualViewport.removeEventListener('resize', handleResize);
+  //     }
+  //   };
+  // }, []);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -74,10 +94,25 @@ export const AddNewInputDialog = () => {
           Dodaj novi unos
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent renderCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Dodaj novi unos</DialogTitle>
-          <DialogDescription>Unesite podatke o novom unosu</DialogDescription>
+          <div className="flex justify-between">
+            <div>
+              <DialogTitle>Dodaj novi unos</DialogTitle>
+              <DialogDescription>Unesite podatke o novom unosu</DialogDescription>
+            </div>
+            <div className={'flex gap-4'}>
+              <DialogClose asChild>
+                <Button variant="destructive" onClick={cleanup}>
+                  Obriši
+                </Button>
+              </DialogClose>
+
+              <DialogClose asChild>
+                <Button onClick={createNewEntry}>Napravi unos</Button>
+              </DialogClose>
+            </div>
+          </div>
         </DialogHeader>
 
         <Input
@@ -174,17 +209,6 @@ export const AddNewInputDialog = () => {
           <Input placeholder="Broj telefona" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
         )}
         <Textarea placeholder="Napomene:" value={notes} onChange={(e) => setNotes(e.target.value)} />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="destructive" onClick={cleanup}>
-              Obriši
-            </Button>
-          </DialogClose>
-
-          <DialogClose asChild>
-            <Button onClick={createNewEntry}>Napravi unos</Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
