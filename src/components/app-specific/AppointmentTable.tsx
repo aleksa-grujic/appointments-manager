@@ -86,7 +86,7 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
       <TableRow
         className={clsx({
           'bg-accent': index % 2 === 0,
-          'bg-green-100': appointment.status === 'completed',
+          'bg-green-100 dark:bg-green-900': appointment.status === 'completed',
         })}
       >
         <TableCell>

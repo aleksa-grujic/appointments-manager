@@ -10,89 +10,52 @@ import { formatISO } from 'date-fns';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog.tsx';
+import { useForm } from 'react-hook-form';
+import { TablesInsert } from '@/types/supabase.ts';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
+import { FormField } from '@/components/ui/form.tsx';
 
 export const AddNewInputDialog = () => {
   const minuteRef = React.useRef<HTMLInputElement>(null);
   const hourRef = React.useRef<HTMLInputElement>(null);
+  const [open, setOpen] = React.useState(false);
+  const { control, handleSubmit, watch, reset } = useForm<TablesInsert<'appointments'>>({
+    defaultValues: {
+      start_time: formatISO(new Date()),
+      type: 'play',
+      status: 'ongoing',
+    },
+    resolver: zodResolver(appointmentSchema),
+  });
 
-  const [date, setDate] = React.useState<Date>(new Date());
-  const [kidName1, setKidName1] = React.useState<string>('');
-  const [kidName2, setKidName2] = React.useState<string>('');
-  const [kidName3, setKidName3] = React.useState<string>('');
-  const [parentName, setParentName] = React.useState<string>('');
-  const [isBabysitting, setIsBabysitting] = React.useState<boolean>(false);
-  const [notes, setNotes] = React.useState<string>('');
-  const [phoneNumber, setPhoneNumber] = React.useState<string>('');
-  const [kidCount, setKidCount] = React.useState<string>('1');
-  const [tableNumber, setTableNumber] = React.useState<string>('');
+  const kidCount = watch('child_count');
+  const isBabysitting = watch('type') === 'babysitting';
 
   const { mutate: addAppointment } = useMutateAppointment();
 
-  const openPopup = () => {
-    setDate(new Date());
-  };
-
-  const cleanup = () => {
-    setKidName1('');
-    setParentName('');
-    setIsBabysitting(false);
-    setNotes('');
-    setPhoneNumber('');
-    setKidCount('1');
-  };
-  const createNewEntry = () => {
+  const onSubmit = (data: TablesInsert<'appointments'>) => {
     addAppointment({
-      appointment: {
-        start_time: formatISO(date),
-        child_name: kidName1,
-        type: isBabysitting ? 'babysitting' : 'play',
-        status: 'ongoing',
-        notes: notes,
-        phone_number: phoneNumber,
-        parent_name: parentName,
-        child_count: kidCount,
-        child_name2: kidName2,
-        child_name3: kidName3,
-        table_number: tableNumber,
-      },
+      appointment: data,
     });
-    cleanup();
+    setOpen(false);
   };
 
-  // const formContainerRef = useRef<HTMLDivElement | null>(null);
-  //
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (formContainerRef.current) {
-  //       formContainerRef.current.style.setProperty('bottom', `env(safe-area-inset-bottom)`);
-  //     }
-  //   };
-  //
-  //   if (window.visualViewport) {
-  //     window.visualViewport.addEventListener('resize', handleResize);
-  //     handleResize(); // Initial call in case the keyboard is already open
-  //   }
-  //
-  //   return () => {
-  //     if (window.visualViewport) {
-  //       window.visualViewport.removeEventListener('resize', handleResize);
-  //     }
-  //   };
-  // }, []);
+  const onClose = () => {
+    reset();
+    setOpen(false);
+  };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" onClick={openPopup}>
-          Dodaj novi unos
-        </Button>
+        <Button variant="default">Dodaj novi unos</Button>
       </DialogTrigger>
       <DialogContent renderCloseButton={false}>
         <DialogHeader>
@@ -102,113 +65,158 @@ export const AddNewInputDialog = () => {
               <DialogDescription>Unesite podatke o novom unosu</DialogDescription>
             </div>
             <div className={'flex gap-4'}>
-              <DialogClose asChild>
-                <Button variant="destructive" onClick={cleanup}>
-                  Obriši
-                </Button>
-              </DialogClose>
-
-              <DialogClose asChild>
-                <Button onClick={createNewEntry}>Napravi unos</Button>
-              </DialogClose>
+              <Button variant="destructive" onClick={onClose}>
+                Obriši
+              </Button>
+              <Button onClick={handleSubmit(onSubmit)}>Napravi unos</Button>
             </div>
           </div>
         </DialogHeader>
-
-        <Input
-          placeholder={`Unesite ime ${kidCount !== '1' ? 'prvog ' : ''}deteta`}
-          value={kidName1}
-          onChange={(e) => setKidName1(e.target.value)}
-        />
-        {(kidCount === '2' || kidCount === '3') && (
-          <Input
-            placeholder="Unesite ime drugog deteta"
-            value={kidName2}
-            onChange={(e) => setKidName2(e.target.value)}
-          />
-        )}
-        {kidCount === '3' && (
-          <Input
-            placeholder="Unesite ime trećeg deteta"
-            value={kidName3}
-            onChange={(e) => setKidName3(e.target.value)}
-          />
-        )}
-        <Input placeholder="Unesite ime roditelja" value={parentName} onChange={(e) => setParentName(e.target.value)} />
-        <div className="flex gap-6 justify-between md:justify-start">
-          <div className="flex flex-col gap-2">
-            <div className="text-sm font-medium">Broj dece</div>
-            <ToggleGroup
-              type="single"
-              value={kidCount}
-              onValueChange={(count) => setKidCount(count)}
-              className="justify-start"
-            >
-              <ToggleGroupItem value="1" aria-label="Toggle 1">
-                1
-              </ToggleGroupItem>
-              <ToggleGroupItem value="2" aria-label="Toggle 2">
-                2
-              </ToggleGroupItem>
-              <ToggleGroupItem value="3" aria-label="Toggle 3">
-                3
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
-
-          <div className="flex gap-2">
-            <div className="grid gap-2 text-center">
-              <Label htmlFor="hours" className="text-sm">
-                Časovi
-              </Label>
-              <TimePickerInput
-                picker="hours"
-                date={date}
-                setDate={setDate}
-                ref={hourRef}
-                onRightFocus={() => minuteRef.current?.focus()}
-              />
-            </div>
-            <div className="grid gap-2 text-center">
-              <Label htmlFor="minutes" className="text-sm">
-                Minuti
-              </Label>
-              <TimePickerInput
-                picker="minutes"
-                date={date}
-                setDate={setDate}
-                ref={minuteRef}
-                onLeftFocus={() => hourRef.current?.focus()}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="table_number" className="text-sm">
-              Broj stola
-            </Label>
+        <FormField
+          name={'child_name'}
+          control={control}
+          render={({ field }) => (
             <Input
-              type="number"
-              className="w-[48px] text-center font-mono text-base tabular-nums caret-transparent focus:bg-accent focus:text-accent-foreground [&::-webkit-inner-spin-button]:appearance-none"
-              id="table_number"
-              value={tableNumber}
-              onChange={(e) => setTableNumber(e.target.value)}
+              placeholder={`Unesite ime ${kidCount !== '1' ? 'prvog ' : ''}deteta`}
+              {...field}
+              value={field.value || ''}
             />
-          </div>
+          )}
+        />
+
+        {(kidCount === '2' || kidCount === '3') && (
+          <FormField
+            name={'child_name2'}
+            control={control}
+            render={({ field }) => (
+              <Input placeholder={`Unesite ime drugog deteta`} {...field} value={field.value || ''} />
+            )}
+          />
+        )}
+
+        {kidCount === '3' && (
+          <FormField
+            name={'child_name3'}
+            control={control}
+            render={({ field }) => (
+              <Input placeholder={`Unesite ime trećeg deteta`} {...field} value={field.value || ''} />
+            )}
+          />
+        )}
+        <FormField
+          render={({ field }) => <Input placeholder={`Unesite ime roditelja`} {...field} value={field.value || ''} />}
+          name={'parent_name'}
+          control={control}
+        />
+        <div className="flex gap-6 justify-between md:justify-start">
+          <FormField
+            render={({ field }) => (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor={'child_count'} className="text-sm">
+                  Broj dece
+                </Label>
+                <ToggleGroup
+                  type="single"
+                  id="child_count"
+                  value={field.value || '1'}
+                  onValueChange={(count) => field.onChange(count)}
+                  className="justify-start"
+                >
+                  <ToggleGroupItem value="1" aria-label="Toggle 1">
+                    1
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="2" aria-label="Toggle 2">
+                    2
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="3" aria-label="Toggle 3">
+                    3
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            )}
+            name={'child_count'}
+            control={control}
+          />
+
+          <FormField
+            render={({ field }) => (
+              <div className="flex gap-2">
+                <div className="grid gap-2 text-center">
+                  <Label htmlFor="hours" className="text-sm">
+                    Časovi
+                  </Label>
+                  <TimePickerInput
+                    picker="hours"
+                    date={field.value ? new Date(field.value) : new Date()}
+                    setDate={(date) => field.onChange(formatISO(date))}
+                    ref={hourRef}
+                    onRightFocus={() => minuteRef.current?.focus()}
+                  />
+                </div>
+                <div className="grid gap-2 text-center">
+                  <Label htmlFor="minutes" className="text-sm">
+                    Minuti
+                  </Label>
+                  <TimePickerInput
+                    picker="minutes"
+                    date={field.value ? new Date(field.value) : new Date()}
+                    setDate={(date) => field.onChange(formatISO(date))}
+                    ref={minuteRef}
+                    onLeftFocus={() => hourRef.current?.focus()}
+                  />
+                </div>
+              </div>
+            )}
+            name={'start_time'}
+            control={control}
+          />
+          <FormField
+            render={({ field }) => (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="table_number" className="text-sm">
+                  Broj stola
+                </Label>
+                <Input
+                  type="number"
+                  className="w-[48px] text-center font-mono text-base tabular-nums caret-transparent focus:bg-accent focus:text-accent-foreground [&::-webkit-inner-spin-button]:appearance-none"
+                  id="table_number"
+                  {...field}
+                  value={field.value || ''}
+                />
+              </div>
+            )}
+            name={'table_number'}
+            control={control}
+          />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="cuvanje"
-            value={isBabysitting ? 'on' : 'off'}
-            onClick={() => setIsBabysitting(!isBabysitting)}
-          />
-          <Label htmlFor="cuvanje">Da li je dete na čuvanju?</Label>
-        </div>
+        <FormField
+          render={({ field }) => (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="babysitting"
+                value={field?.value === 'babysitting' ? 'on' : 'off'}
+                onCheckedChange={(checked) => field.onChange(checked ? 'babysitting' : 'play')}
+              />
+              <Label htmlFor="babysitting">Da li je dete na čuvanju?</Label>
+            </div>
+          )}
+          name={'type'}
+          control={control}
+        />
+
         {isBabysitting && (
-          <Input placeholder="Broj telefona" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <FormField
+            render={({ field }) => <Input placeholder="Broj telefona" {...field} value={field.value || ''} />}
+            name={'phone_number'}
+            control={control}
+          />
         )}
-        <Textarea placeholder="Napomene:" value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <FormField
+          render={({ field }) => <Textarea placeholder="Napomene:" {...field} value={field.value || ''} />}
+          name={'notes'}
+          control={control}
+        />
       </DialogContent>
     </Dialog>
   );
