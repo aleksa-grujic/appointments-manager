@@ -5,6 +5,7 @@ import { addDays } from 'date-fns';
 import { Button } from '@/components/ui/button.tsx';
 import { AppointmentTable } from '@/components/app-specific/AppointmentTable.tsx';
 import { useGetAppointments } from '@/api/useGetAppointments.ts';
+import ChildrenChart from '@/components/app-specific/ChildrenChart.tsx';
 
 const today = () => {
   // set today
@@ -72,6 +73,9 @@ export function Reports() {
               <Button variant="outline" onClick={() => setDate(thisMonth())}>
                 Ovaj mesec
               </Button>
+            </div>
+            <div>
+              <ChildrenChart appointments={appointments} startDate={date?.from} endDate={date?.to} />
             </div>
             <AppointmentTable appointments={appointments} isLoading={isFetching} />
           </div>
