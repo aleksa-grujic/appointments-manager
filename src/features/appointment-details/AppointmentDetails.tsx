@@ -17,9 +17,10 @@ import { DeleteAppointment } from '@/components/app-specific/DeleteAppointment.t
 type AppointmentDetailsProps = {
   appointment: Tables<'appointments'>;
   onClose: () => void;
+  isActiveTab: boolean;
 };
 
-const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
+const AppointmentDetails = ({ appointment, isActiveTab }: AppointmentDetailsProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { mutate: updateAppointment } = useMutateAppointment(true);
 
@@ -39,12 +40,10 @@ const AppointmentDetails = ({ appointment }: AppointmentDetailsProps) => {
     if (!isEditing && form.formState.isDirty) {
       form.handleSubmit(onSubmit)();
     }
-    return () => {
-      if (form.formState.isDirty) {
-        form.handleSubmit(onSubmit)();
-      }
-    };
-  }, [form, isEditing, updateAppointment]);
+    if (!isActiveTab && form.formState.isDirty) {
+      form.handleSubmit(onSubmit)();
+    }
+  }, [isActiveTab, form, isEditing, updateAppointment]);
 
   return (
     <TabsContent

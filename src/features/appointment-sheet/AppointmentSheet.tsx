@@ -12,19 +12,39 @@ type AppointmentSheetProps = {
 
 export const AppointmentSheet = ({ trigger, appointment }: AppointmentSheetProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<string | undefined>('slip');
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+    <Sheet
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        setActiveTab(open ? 'slip' : undefined);
+      }}
+    >
       <SheetTrigger asChild onClick={() => setIsOpen(true)}>
         {trigger}
       </SheetTrigger>
       <SheetContent>
-        <Tabs defaultValue="slip" className="w-full h-full mt-2 overflow-auto">
+        <Tabs
+          defaultValue="slip"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="w-full h-full mt-2 overflow-auto"
+        >
           <TabsList>
             <TabsTrigger value="slip">Račun</TabsTrigger>
             <TabsTrigger value="details">Detalji termina</TabsTrigger>
           </TabsList>
-          <AppointmentSlip appointment={appointment} onClose={() => setIsOpen(false)} />
-          <AppointmentDetails appointment={appointment} onClose={() => setIsOpen(false)} />
+          <AppointmentSlip
+            appointment={appointment}
+            onClose={() => setIsOpen(false)}
+            isActiveTab={activeTab === 'slip'}
+          />
+          <AppointmentDetails
+            appointment={appointment}
+            onClose={() => setIsOpen(false)}
+            isActiveTab={activeTab === 'details'}
+          />
         </Tabs>
       </SheetContent>
     </Sheet>

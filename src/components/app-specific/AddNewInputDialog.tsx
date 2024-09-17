@@ -31,6 +31,7 @@ export const AddNewInputDialog = () => {
       start_time: formatISO(new Date()),
       type: 'play',
       status: 'ongoing',
+      child_count: '1',
     },
     resolver: zodResolver(appointmentSchema),
   });

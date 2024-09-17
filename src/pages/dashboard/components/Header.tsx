@@ -1,5 +1,5 @@
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card.tsx';
-import { AddNewInputDialog } from '@/components/app-specific/add-new-input-dialog/AddNewInputDialog.tsx';
+import { AddNewInputDialog } from '@/components/app-specific/AddNewInputDialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useGetAppointments } from '@/api/useGetAppointments.ts';

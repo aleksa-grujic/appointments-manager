@@ -2,7 +2,7 @@ import { Label } from '@/components/ui/label.tsx';
 import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
 import { formatISO } from 'date-fns';
@@ -13,7 +13,15 @@ import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { calculatePrice, calculateProducts, calculateTotalHours } from '@/lib/calculate_price.ts';
 
-const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appointments'>; onClose: () => void }) => {
+const AppointmentSlip = ({
+  appointment,
+  onClose,
+  isActiveTab,
+}: {
+  appointment: Tables<'appointments'>;
+  onClose: () => void;
+  isActiveTab: boolean;
+}) => {
   const isFinished = appointment.status === 'completed';
 
   const startMinuteRef = React.useRef<HTMLInputElement>(null);
@@ -32,6 +40,7 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
 
   const [isFree, setIsFree] = React.useState(false);
   const [drinkCost, setDrinkCost] = React.useState('');
+  const [tableNumber, setTableNumber] = React.useState(appointment.table_number?.toString() || '');
 
   const [showDrinkInput, setShowDrinkInput] = React.useState(false);
   const [showInitialSlipInput, setShowInitialSlipInput] = React.useState(false);
@@ -133,11 +142,39 @@ const AppointmentSlip = ({ appointment, onClose }: { appointment: Tables<'appoin
     });
   };
 
+  const updateTableNumber = useCallback(() => {
+    if ((appointment.table_number || '') !== tableNumber) {
+      updateAppointment({
+        appointment: {
+          ...appointment,
+          table_number: tableNumber,
+        },
+      });
+    }
+  }, [appointment.table_number, tableNumber]);
+
+  useEffect(() => {
+    if (!isActiveTab) {
+      updateTableNumber();
+    }
+  }, [isActiveTab, updateTableNumber]);
+
   return (
     <TabsContent value="slip">
-      <SheetHeader className="mb-3">
-        <SheetTitle>Račun</SheetTitle>
-        <SheetDescription>Ažurirajte ili zatvorite račun ovde.</SheetDescription>
+      <SheetHeader className="mb-6 flex-row justify-between">
+        <div className="flex flex-col justify-between">
+          <SheetTitle>Račun</SheetTitle>
+          <SheetDescription>Ažurirajte ili zatvorite račun ovde.</SheetDescription>
+        </div>
+        <div className="flex flex-col gap-2 !mt-0 items-end mr-1">
+          <Label>Broj stola</Label>
+          <Input
+            type="number"
+            value={tableNumber}
+            onChange={(e) => setTableNumber(e.target.value)}
+            className="w-16 h-6"
+          />
+        </div>
       </SheetHeader>
       <div className="space-y-4">
         <div className="flex justify-around">
