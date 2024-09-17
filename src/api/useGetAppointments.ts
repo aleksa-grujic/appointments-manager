@@ -30,7 +30,13 @@ type UseGetAppointmentsProps = {
 };
 
 export const useGetAppointments = (props: UseGetAppointmentsProps) => {
-  const { startDate, endDate } = props;
+  const { startDate: startDateTemp, endDate: endDateTemp } = props;
+
+  const startDateTimestamp = startDateTemp?.setHours(0, 0, 0, 0);
+  const endDateTimestamp = endDateTemp?.setHours(0, 0, 0, 0);
+
+  const startDate = startDateTimestamp ? new Date(startDateTimestamp) : undefined;
+  const endDate = endDateTimestamp ? new Date(endDateTimestamp) : undefined;
 
   const queryKey = ['appointments'];
   if (startDate) queryKey.push(startDate.toISOString());
