@@ -171,6 +171,7 @@ const AppointmentSlip = ({
           <Input
             type="number"
             value={tableNumber}
+            disabled={isFinished}
             onChange={(e) => setTableNumber(e.target.value)}
             className="w-16 h-6"
           />
