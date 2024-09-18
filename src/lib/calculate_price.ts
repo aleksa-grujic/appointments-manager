@@ -34,7 +34,9 @@ const regularBabysitting: Product = {
 
 export const calculateTotalHours = (appointment: Tables<'appointments'>, startDate?: Date, endDate?: Date): number => {
   const start = startDate || new Date(appointment.start_time);
-  const end = endDate || new Date(appointment.end_time || new Date());
+  const dateOfAppointment = new Date(appointment.start_time);
+  dateOfAppointment.setHours(new Date().getHours(), new Date().getMinutes(), 0, 0);
+  const end = endDate || new Date(appointment.end_time || dateOfAppointment);
 
   const diff = dateSecondsTo0(end).getTime() - dateSecondsTo0(start).getTime();
   // round to 30 minutes interval but if it's exactly hour round to 1

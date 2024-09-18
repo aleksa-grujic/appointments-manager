@@ -35,7 +35,9 @@ const AppointmentSlip = ({
     if (appointment.end_time) {
       return new Date(appointment.end_time);
     }
-    return new Date();
+    const dateOfAppointment = new Date(appointment.start_time);
+    dateOfAppointment.setHours(new Date().getHours(), new Date().getMinutes(), 0, 0);
+    return dateOfAppointment;
   });
 
   const [isFree, setIsFree] = React.useState(false);
