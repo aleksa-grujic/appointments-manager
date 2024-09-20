@@ -72,7 +72,8 @@ const AppointmentDetails = ({ appointment, isActiveTab }: AppointmentDetailsProp
           type="select"
           options={[
             { label: 'U toku', value: 'ongoing' },
-            { label: 'Završen', value: 'finished' },
+            { label: 'Završen', value: 'completed' },
+            { label: 'Obrisan', value: 'deleted' },
           ]}
         />
         <AppointmentDetailsRow

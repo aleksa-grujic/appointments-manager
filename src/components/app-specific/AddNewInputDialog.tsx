@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { useMutateAppointment } from '@/api/useMutateAppointment.ts';
@@ -35,6 +35,10 @@ export const AddNewInputDialog = () => {
     },
     resolver: zodResolver(appointmentSchema),
   });
+
+  useEffect(() => {
+    reset();
+  }, [open, reset]);
 
   const kidCount = watch('child_count');
   const isBabysitting = watch('type') === 'babysitting';

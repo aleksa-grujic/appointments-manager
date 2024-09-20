@@ -24,6 +24,8 @@ const AppointmentSlip = ({
 }) => {
   const isFinished = appointment.status === 'completed';
 
+  const isSameDay = new Date(appointment.start_time).getDate() === new Date().getDate();
+
   const startMinuteRef = React.useRef<HTMLInputElement>(null);
   const startHourRef = React.useRef<HTMLInputElement>(null);
 
@@ -78,6 +80,14 @@ const AppointmentSlip = ({
     updateAppointment({ appointment: finishedAppointment });
     onClose();
   }, [appointment, isFree, endDate, updateAppointment, onClose]);
+
+  const reopenAppointment = useCallback(() => {
+    const reopenedAppointment: Tables<'appointments'> = {
+      ...appointment,
+      status: 'ongoing',
+    };
+    updateAppointment({ appointment: reopenedAppointment });
+  }, [appointment, updateAppointment]);
 
   const addInitialSlip = () => {
     const productsPrice = products.reduce((acc, product) => acc + product.price * (product.count || 1), 0);
@@ -323,9 +333,21 @@ const AppointmentSlip = ({
         <Button type="button" variant="outline" className={'w-full'} disabled={isFinished} onClick={openDrinkInput}>
           Dodaj cenu pića
         </Button>
-        <Button type="button" variant="default" className={'w-full'} disabled={isFinished} onClick={finishAppointment}>
-          Završi {typeContentName}
-        </Button>
+        {isSameDay && isFinished ? (
+          <Button type="button" variant="default" className={'w-full'} onClick={reopenAppointment}>
+            Otvori ponovo {typeContentName}
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="default"
+            className={'w-full'}
+            disabled={isFinished}
+            onClick={finishAppointment}
+          >
+            Završi {typeContentName}
+          </Button>
+        )}
       </div>
     </TabsContent>
   );
