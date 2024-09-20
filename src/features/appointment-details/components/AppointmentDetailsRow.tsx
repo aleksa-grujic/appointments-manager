@@ -5,10 +5,9 @@ import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/for
 import { Control, ControllerRenderProps, FieldValues, Path } from 'react-hook-form';
 import { clsx } from 'clsx';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
-import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
-import React from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { formatISO } from 'date-fns';
+import { TimeInput } from '@/components/app-specific/TimeInput.tsx';
 
 type AppointmentDetailsRowProps<T extends FieldValues> = {
   edit?: boolean;
@@ -27,9 +26,6 @@ const AppointmentDetailsRow = <T extends FieldValues>({
   type = 'input',
   options,
 }: AppointmentDetailsRowProps<T>) => {
-  const hourRef = React.useRef<HTMLInputElement>(null);
-  const minuteRef = React.useRef<HTMLInputElement>(null);
-
   const renderInput = (field: ControllerRenderProps<T, Path<T>>) => {
     switch (type) {
       case 'input':
@@ -78,28 +74,11 @@ const AppointmentDetailsRow = <T extends FieldValues>({
         );
       case 'time':
         return (
-          <div className="flex gap-2">
-            <div className="grid gap-2 text-center">
-              <TimePickerInput
-                picker="hours"
-                date={new Date(field.value)}
-                setDate={(date) => field.onChange(formatISO(date))}
-                ref={hourRef}
-                onRightFocus={() => minuteRef.current?.focus()}
-                disabled={!edit}
-              />
-            </div>
-            <div className="grid gap-2 text-center">
-              <TimePickerInput
-                picker="minutes"
-                date={new Date(field.value)}
-                setDate={(date) => field.onChange(formatISO(date))}
-                ref={minuteRef}
-                onLeftFocus={() => hourRef.current?.focus()}
-                disabled={!edit}
-              />
-            </div>
-          </div>
+          <TimeInput
+            value={new Date(field.value)}
+            onChange={(date) => field.onChange(formatISO(date))}
+            isDisabled={!edit}
+          />
         );
       case 'toggle':
         return (

@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Label } from '@/components/ui/label.tsx';
-import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import React, { useEffect } from 'react';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
@@ -21,10 +20,9 @@ import { TablesInsert } from '@/types/supabase.ts';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
 import { FormField } from '@/components/ui/form.tsx';
+import { TimeInput } from '@/components/app-specific/TimeInput.tsx';
 
 export const AddNewInputDialog = () => {
-  const minuteRef = React.useRef<HTMLInputElement>(null);
-  const hourRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const { control, handleSubmit, watch, reset } = useForm<TablesInsert<'appointments'>>({
     defaultValues: {
@@ -145,32 +143,12 @@ export const AddNewInputDialog = () => {
 
           <FormField
             render={({ field }) => (
-              <div className="flex gap-2">
-                <div className="grid gap-2 text-center">
-                  <Label htmlFor="hours" className="text-sm">
-                    Časovi
-                  </Label>
-                  <TimePickerInput
-                    picker="hours"
-                    date={field.value ? new Date(field.value) : new Date()}
-                    setDate={(date) => field.onChange(formatISO(date))}
-                    ref={hourRef}
-                    onRightFocus={() => minuteRef.current?.focus()}
-                  />
-                </div>
-                <div className="grid gap-2 text-center">
-                  <Label htmlFor="minutes" className="text-sm">
-                    Minuti
-                  </Label>
-                  <TimePickerInput
-                    picker="minutes"
-                    date={field.value ? new Date(field.value) : new Date()}
-                    setDate={(date) => field.onChange(formatISO(date))}
-                    ref={minuteRef}
-                    onLeftFocus={() => hourRef.current?.focus()}
-                  />
-                </div>
-              </div>
+              <TimeInput
+                value={field.value ? new Date(field.value) : new Date()}
+                onChange={(date) => field.onChange(formatISO(date))}
+                hourLabel={'Časovi'}
+                minuteLabel={'Minuti'}
+              />
             )}
             name={'start_time'}
             control={control}

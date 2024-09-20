@@ -1,5 +1,4 @@
 import { Label } from '@/components/ui/label.tsx';
-import { TimePickerInput } from '@/components/ui/time-picker-input.tsx';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import React, { useCallback, useEffect, useMemo } from 'react';
@@ -12,6 +11,7 @@ import { SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet
 import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { calculatePrice, calculateProducts, calculateTotalHours } from '@/lib/calculate_price.ts';
+import { TimeInput } from '@/components/app-specific/TimeInput.tsx';
 
 const AppointmentSlip = ({
   appointment,
@@ -25,12 +25,6 @@ const AppointmentSlip = ({
   const isFinished = appointment.status === 'completed';
 
   const isSameDay = new Date(appointment.start_time).getDate() === new Date().getDate();
-
-  const startMinuteRef = React.useRef<HTMLInputElement>(null);
-  const startHourRef = React.useRef<HTMLInputElement>(null);
-
-  const endMinuteRef = React.useRef<HTMLInputElement>(null);
-  const endHourRef = React.useRef<HTMLInputElement>(null);
 
   const [startDate, setStartDate] = React.useState(new Date(appointment.start_time));
   const [endDate, setEndDate] = React.useState<Date>(() => {
@@ -192,58 +186,10 @@ const AppointmentSlip = ({
       <div className="space-y-4">
         <div className="flex justify-around">
           <div>
-            <Label>Pocetno vreme</Label>
-            <div className="flex items-end gap-2">
-              <div className="grid gap-1 text-center">
-                <TimePickerInput
-                  picker="hours"
-                  date={startDate}
-                  setDate={setStartDate}
-                  ref={startHourRef}
-                  disabled
-                  onRightFocus={() => startMinuteRef.current?.focus()}
-                />
-              </div>
-              <div className="grid gap-1 text-center">
-                <TimePickerInput
-                  picker="minutes"
-                  date={startDate}
-                  setDate={setStartDate}
-                  ref={startMinuteRef}
-                  disabled
-                  onLeftFocus={() => startHourRef.current?.focus()}
-                />
-              </div>
-            </div>
+            <TimeInput value={startDate} onChange={setStartDate} inputLabel="Početno vreme" />
           </div>
           <div>
-            <Label>Zavrsno vreme</Label>
-            <div className="flex items-end gap-2">
-              <div className="grid gap-1 text-center">
-                <TimePickerInput
-                  picker="hours"
-                  date={endDate}
-                  setDate={(date) => {
-                    setEndDate(date);
-                  }}
-                  disabled={isFinished}
-                  ref={endHourRef}
-                  onRightFocus={() => endMinuteRef.current?.focus()}
-                />
-              </div>
-              <div className="grid gap-1 text-center">
-                <TimePickerInput
-                  picker="minutes"
-                  date={endDate}
-                  setDate={(date) => {
-                    setEndDate(date);
-                  }}
-                  disabled={isFinished}
-                  ref={endMinuteRef}
-                  onLeftFocus={() => endHourRef.current?.focus()}
-                />
-              </div>
-            </div>
+            <TimeInput value={endDate} onChange={setEndDate} inputLabel="Završno vreme" />
           </div>
         </div>
         <div className="flex items-center space-x-2">
