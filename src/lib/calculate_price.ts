@@ -53,11 +53,10 @@ export const calculateTotalHours = (appointment: Tables<'appointments'>, startDa
 
 export const calculateProducts = (appointment: Tables<'appointments'>, hours?: number): Product[] => {
   const totalHours = hours || calculateTotalHours(appointment);
-
   const childCount = Number(appointment.child_count || '1');
 
   if (appointment.type === 'babysitting') {
-    const hours = totalHours <= 1 ? 1 : Math.ceil(totalHours);
+    const hours = totalHours <= regularBabysitting.duration ? 1 : Math.ceil(totalHours);
     return [
       {
         ...regularBabysitting,
@@ -66,7 +65,7 @@ export const calculateProducts = (appointment: Tables<'appointments'>, hours?: n
     ];
   }
   const products: Product[] = [{ ...regularPlay, count: childCount }];
-  if (totalHours > 1.5) {
+  if (totalHours > regularPlay.duration) {
     const specialHours = totalHours - regularPlay.duration;
     const specialPlayCount = Math.ceil(specialHours / specialPlay.duration);
 

@@ -19,7 +19,6 @@ export const useSession = () => {
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
-  console.log('session', session, isLoading);
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoading(false);
