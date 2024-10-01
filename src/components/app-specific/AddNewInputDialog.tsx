@@ -22,21 +22,25 @@ import { appointmentSchema } from '@/schemas/appointmentSchema.ts';
 import { FormField } from '@/components/ui/form.tsx';
 import { TimeInput } from '@/components/app-specific/TimeInput.tsx';
 
+const defaultValues = {
+  start_time: formatISO(new Date()),
+  type: 'play',
+  status: 'ongoing',
+  child_count: '1',
+};
 export const AddNewInputDialog = () => {
   const [open, setOpen] = React.useState(false);
-  const { control, handleSubmit, watch, reset } = useForm<TablesInsert<'appointments'>>({
-    defaultValues: {
-      start_time: formatISO(new Date()),
-      type: 'play',
-      status: 'ongoing',
-      child_count: '1',
-    },
+  const { control, handleSubmit, watch, reset, setValue } = useForm<TablesInsert<'appointments'>>({
+    defaultValues,
     resolver: zodResolver(appointmentSchema),
   });
 
   useEffect(() => {
-    reset();
-  }, [open, reset]);
+    if (open) {
+      reset();
+      setValue('start_time', formatISO(new Date()));
+    }
+  }, [open, reset, setValue]);
 
   const kidCount = watch('child_count');
   const isBabysitting = watch('type') === 'babysitting';
