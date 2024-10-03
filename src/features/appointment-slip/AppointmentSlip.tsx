@@ -186,10 +186,10 @@ const AppointmentSlip = ({
       <div className="space-y-4">
         <div className="flex justify-around">
           <div>
-            <TimeInput value={startDate} onChange={setStartDate} inputLabel="Početno vreme" />
+            <TimeInput value={startDate} onChange={setStartDate} inputLabel="Početno vreme" isDisabled={isFinished} />
           </div>
           <div>
-            <TimeInput value={endDate} onChange={setEndDate} inputLabel="Završno vreme" />
+            <TimeInput value={endDate} onChange={setEndDate} inputLabel="Završno vreme" isDisabled={isFinished} />
           </div>
         </div>
         <div className="flex items-center space-x-2">

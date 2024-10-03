@@ -81,55 +81,58 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
     );
   }, []);
 
-  const renderTableRowContent = useCallback((appointment: Tables<'appointments'>, index: number) => {
-    return (
-      <TableRow
-        className={clsx({
-          'bg-accent': index % 2 === 0,
-          'bg-green-100 dark:bg-green-700 dark:hover:bg-green-900': appointment.status === 'completed',
-        })}
-      >
-        <TableCell>
-          <div className="font-medium">
-            {appointment.child_name || '-'}
+  const renderTableRowContent = useCallback(
+    (appointment: Tables<'appointments'>, index: number) => {
+      return (
+        <TableRow
+          className={clsx({
+            'bg-accent': index % 2 === 0,
+            'bg-green-100 dark:bg-green-700 dark:hover:bg-green-900': appointment.status === 'completed',
+          })}
+        >
+          <TableCell>
+            <div className="font-medium">
+              {appointment.child_name || '-'}
 
-            {appointment.child_count === '2' || appointment.child_count === '3' ? (
-              <>
-                <br />
-                {appointment.child_name2 || '-'}
-              </>
-            ) : (
-              ''
+              {appointment.child_count === '2' || appointment.child_count === '3' ? (
+                <>
+                  <br />
+                  {appointment.child_name2 || '-'}
+                </>
+              ) : (
+                ''
+              )}
+              {appointment.child_count === '3' ? (
+                <>
+                  <br />
+                  {appointment.child_name3 || '-'}
+                </>
+              ) : (
+                ''
+              )}
+            </div>
+          </TableCell>
+          <TableCell>{appointment.table_number || '-'}</TableCell>
+          <TableCell className="hidden sm:table-cell">
+            {appointment.status === 'ongoing' ? 'U toku' : 'Završeno'}
+          </TableCell>
+          <TableCell>{`${getHoursAndMinutes(new Date(appointment.start_time), true)}`}</TableCell>
+          <TableCell>
+            {appointment.end_time ? `${getHoursAndMinutes(new Date(appointment.end_time), true)}` : '-'}
+          </TableCell>
+          <TableCell>{calculatePrice(appointment)} din</TableCell>
+          <TableCell>
+            {appointment.status === 'ongoing' && (
+              <Button variant="outline" className="p-0 w-10" onClick={(e) => finishAppointment(e, appointment)}>
+                <Check className={'w-6'} />
+              </Button>
             )}
-            {appointment.child_count === '3' ? (
-              <>
-                <br />
-                {appointment.child_name3 || '-'}
-              </>
-            ) : (
-              ''
-            )}
-          </div>
-        </TableCell>
-        <TableCell>{appointment.table_number || '-'}</TableCell>
-        <TableCell className="hidden sm:table-cell">
-          {appointment.status === 'ongoing' ? 'U toku' : 'Završeno'}
-        </TableCell>
-        <TableCell>{`${getHoursAndMinutes(new Date(appointment.start_time), true)}`}</TableCell>
-        <TableCell>
-          {appointment.end_time ? `${getHoursAndMinutes(new Date(appointment.end_time), true)}` : '-'}
-        </TableCell>
-        <TableCell>{calculatePrice(appointment)} din</TableCell>
-        <TableCell>
-          {appointment.status === 'ongoing' && (
-            <Button variant="outline" className="p-0 w-10" onClick={(e) => finishAppointment(e, appointment)}>
-              <Check className={'w-6'} />
-            </Button>
-          )}
-        </TableCell>
-      </TableRow>
-    );
-  }, []);
+          </TableCell>
+        </TableRow>
+      );
+    },
+    [finishAppointment],
+  );
 
   const renderTableRow = useCallback(
     (appointment: Tables<'appointments'>, index: number) => {

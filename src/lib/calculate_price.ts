@@ -44,7 +44,7 @@ export const calculateTotalHours = (appointment: Tables<'appointments'>, startDa
     milliseconds: 0,
   });
 
-  const end = endDate ? subMinutes(endDate, TIME_THRESHOLD) : new Date(appointment.end_time || dateOfAppointment);
+  const end = subMinutes(endDate || new Date(appointment.end_time || dateOfAppointment), TIME_THRESHOLD);
 
   const diff = dateSecondsTo0(end).getTime() - dateSecondsTo0(start).getTime();
   // round to 30 minutes interval but if it's exactly hour round to 1
