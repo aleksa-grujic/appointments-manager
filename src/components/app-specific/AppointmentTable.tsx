@@ -42,14 +42,27 @@ type AppointmentTableProps = {
 export const AppointmentTable = ({ appointments, isLoading }: AppointmentTableProps) => {
   const { mutate: updateAppointment } = useMutateAppointment(true);
 
-  const playAppointments = useMemo(
-    () => appointments?.filter((appointment) => appointment.type === 'play'),
-    [appointments],
-  );
-  const babysittingAppointments = useMemo(
-    () => appointments?.filter((appointment) => appointment.type === 'babysitting'),
-    [appointments],
-  );
+  const playAppointments = useMemo(() => {
+    const data = appointments?.filter((appointment) => appointment.type === 'play');
+    const kidsCount = data?.reduce((acc, appointment) => {
+      return acc + (appointment.child_count ? parseInt(appointment.child_count) : 1);
+    }, 0);
+    return {
+      data: data || [],
+      kidsCount: kidsCount || 0,
+    };
+  }, [appointments]);
+
+  const babysittingAppointments = useMemo(() => {
+    const data = appointments?.filter((appointment) => appointment.type === 'babysitting');
+    const kidsCount = data?.reduce((acc, appointment) => {
+      return acc + (appointment.child_count ? parseInt(appointment.child_count) : 1);
+    }, 0);
+    return {
+      data: data || [],
+      kidsCount: kidsCount || 0,
+    };
+  }, [appointments]);
 
   const finishAppointment = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -152,7 +165,10 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
       <TabsContent value="play">
         <Card>
           <CardHeader className="px-7">
-            <CardTitle>Igranje</CardTitle>
+            <CardTitle className="flex justify-between">
+              <p>Igranje</p>
+              <p>Ukupno: {playAppointments.kidsCount}</p>
+            </CardTitle>
             <CardDescription>Deca koja su na igranju</CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,7 +177,7 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
               <TableBody>
                 {isLoading
                   ? Array.from({ length: 5 }).map((_, index) => <SkeletonRow key={index} />)
-                  : playAppointments?.map((appointment, index) => (
+                  : playAppointments.data.map((appointment, index) => (
                       <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
                     ))}
               </TableBody>
@@ -172,7 +188,10 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
       <TabsContent value="babysitting">
         <Card>
           <CardHeader className="px-7">
-            <CardTitle>Čuvanje</CardTitle>
+            <CardTitle className="flex justify-between">
+              <p>Čuvanje</p>
+              <p>Ukupno: {babysittingAppointments.kidsCount}</p>
+            </CardTitle>
             <CardDescription>Deca koja su na čuvanju</CardDescription>
           </CardHeader>
           <CardContent>
@@ -181,7 +200,7 @@ export const AppointmentTable = ({ appointments, isLoading }: AppointmentTablePr
               <TableBody>
                 {isLoading
                   ? Array.from({ length: 5 }).map((_, index) => <SkeletonRow key={index} />)
-                  : babysittingAppointments?.map((appointment, index) => (
+                  : babysittingAppointments.data.map((appointment, index) => (
                       <Fragment key={appointment.id}>{renderTableRow(appointment, index)}</Fragment>
                     ))}
               </TableBody>
