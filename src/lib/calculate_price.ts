@@ -29,7 +29,7 @@ const specialPlay: Product = {
 const regularBabysitting: Product = {
   name: 'regular-babysitting',
   displayName: 'Čuvanje',
-  price: 500,
+  price: 600,
   duration: 1,
 };
 
