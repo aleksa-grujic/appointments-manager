@@ -2,7 +2,7 @@ import { Tables } from '@/types/supabase.ts';
 import { dateSecondsTo0, getHoursRoundedTo30 } from '@/lib/utils.ts';
 import { set, subMinutes } from 'date-fns';
 
-type Product = {
+export type Product = {
   name: string;
   displayName: string;
   price: number;

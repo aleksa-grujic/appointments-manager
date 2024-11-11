@@ -12,6 +12,7 @@ import { TabsContent } from '@/components/ui/tabs.tsx';
 import { Tables } from '@/types/supabase.ts';
 import { calculatePrice, calculateProducts, calculateTotalHours } from '@/lib/calculate_price.ts';
 import { TimeInput } from '@/components/app-specific/TimeInput.tsx';
+import { PriceExplainted } from '@/components/app-specific/PriceExplainted.tsx';
 
 const AppointmentSlip = ({
   appointment,
@@ -229,7 +230,6 @@ const AppointmentSlip = ({
                 </span>
               </React.Fragment>
             ))}
-
             {showDrinkInput && (
               <>
                 <span className={'italic font-light'}>Piće</span>
@@ -253,6 +253,8 @@ const AppointmentSlip = ({
             )}
           </div>
         </div>
+        <PriceExplainted appointment={appointment} products={products} startTime={startDate} endTime={endDate} />
+
         {showInitialSlipInput && (
           <div className="flex gap-4 px-1">
             <Input
