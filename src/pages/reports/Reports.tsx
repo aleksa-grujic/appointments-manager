@@ -56,9 +56,9 @@ export function Reports() {
   return (
     <div className="flex min-h-screen w-full flex-col p-6">
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-10">
-        <main className="grid flex-1 items-start sm:gap-4 sm:p-4 sm:px-6 sm:py-0 sm:pb-4 md:gap-8">
+        <main className="grid items-start sm:gap-4 sm:p-4 sm:px-6 sm:py-0 sm:pb-4 md:gap-8">
           <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
               <DateRangePicker date={date} setDate={setDate} />
               <Button variant="outline" onClick={() => setDate(today())}>
                 Danas
