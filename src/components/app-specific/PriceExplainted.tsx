@@ -29,7 +29,7 @@ export const PriceExplainted = ({
   const productsPerTime = () => {
     const items: Items[] = [];
     products.map((product) => {
-      if (product.name === 'regular-play') {
+      if (product.name === 'regular-play' || product.name === 'regular-babysitting') {
         items.push({
           name: product.displayName,
           price: product.price,
@@ -38,7 +38,7 @@ export const PriceExplainted = ({
           startTime: startTime,
           endTime: addMinutes(startTime, product.duration * 60),
         });
-      } else if (product.name === 'special-play') {
+      } else if (product.name === 'special-play' || product.name === 'special-babysitting') {
         const count = (product.count || 1) / Number(appointment.child_count || '1');
         const initStartTime = addMinutes(startTime, products[0].duration * 60);
         for (let i = 0; i < count; i++) {
@@ -64,7 +64,7 @@ export const PriceExplainted = ({
   return (
     <Accordion type="single" collapsible>
       <AccordionItem value="item-1">
-        <AccordionTrigger>Računanje igranja</AccordionTrigger>
+        <AccordionTrigger>Računanje {products[0].name === 'regular-play' ? 'igranja' : 'čuvanja'}</AccordionTrigger>
         <AccordionContent>
           {items.map((item, index) => (
             <>
