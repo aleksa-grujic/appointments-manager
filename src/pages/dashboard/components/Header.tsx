@@ -3,7 +3,7 @@ import { AddNewInputDialog } from '@/components/app-specific/AddNewInputDialog.t
 import { Button } from '@/components/ui/button.tsx';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useGetAppointments } from '@/api/useGetAppointments.ts';
-import { calculatePrice } from '@/lib/calculate_price.ts';
+import { calculatePrice, calculateProducts } from '@/lib/calculate_price.ts';
 import { useMemo } from 'react';
 
 export const Header = () => {
@@ -27,6 +27,19 @@ export const Header = () => {
     [appointments],
   );
 
+  const totalMiniAppointments = useMemo(
+    () => {
+      const miniProducts = appointments?.reduce((acc, appointment) => {
+        if (appointment.status === 'completed') {
+          const products = calculateProducts(appointment);
+          const miniProduct = products.find((product) => product.name === 'special-play');
+          return acc + (miniProduct?.count ?? 0);
+        }
+        return acc
+      }, 0);
+      return miniProducts || 0;
+    },
+  [appointments]);
   const totalIncome = useMemo(
     () =>
       appointments?.reduce((acc, appointment) => {
@@ -64,6 +77,10 @@ export const Header = () => {
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground italic">Ukupno danas</p>
             <p className="text-lg italic">{totalAppointments}</p>
+          </div>
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground italic">Ukupno naplaćeno mini igranja</p>
+            <p className="text-lg italic">{totalMiniAppointments}</p>
           </div>
           <div className="flex justify-between items-center">
             <p className="text-sm text-muted-foreground italic">Ukupno naplaćeno</p>

@@ -92,5 +92,8 @@ export const calculatePrice = (appointment: Tables<'appointments'>, initProducts
   const products = initProducts || calculateProducts(appointment);
   const drinksPrice = appointment.drink_cost ? appointment.drink_cost.reduce((acc, drink) => acc + drink, 0) : 0;
   const productsPrice = products.reduce((acc, product) => acc + product.price * (product.count || 1), 0);
+  if (appointment.free) {
+    return drinksPrice;
+  }
   return (drinksPrice + productsPrice).toFixed(0);
 };

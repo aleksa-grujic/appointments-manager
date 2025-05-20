@@ -10,6 +10,7 @@ import { SessionProvider } from '@/context/SessionContext.tsx';
 import { ProtectedRoute } from '@/components/app-specific/ProtectedRoute.tsx';
 import { Reports } from '@/pages/reports/Reports.tsx';
 import { ThemeProvider } from '@/context/ThemeContext.tsx';
+import { Toaster } from '@/components/ui/sonner';
 
 const router = createBrowserRouter([
   {
@@ -56,6 +57,7 @@ function App() {
           <RouterProvider router={router} />
         </QueryClientProvider>
       </ThemeProvider>
+      <Toaster />
     </SessionProvider>
   );
 }

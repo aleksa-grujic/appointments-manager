@@ -37,7 +37,7 @@ const AppointmentSlip = ({
     return dateOfAppointment;
   });
 
-  const [isFree, setIsFree] = React.useState(false);
+  const [isFree, setIsFree] = React.useState(appointment.free || false);
   const [drinkCost, setDrinkCost] = React.useState('');
   const [tableNumber, setTableNumber] = React.useState(appointment.table_number?.toString() || '');
 
@@ -58,11 +58,8 @@ const AppointmentSlip = ({
   }, [appointment, totalHours]);
 
   const totalPrice = useMemo(() => {
-    if (isFree) {
-      return '0';
-    }
     return calculatePrice(appointment, products);
-  }, [appointment, isFree, products]);
+  }, [appointment, products]);
 
   const finishAppointment = useCallback(() => {
     const finishedAppointment: Tables<'appointments'> = {
@@ -80,6 +77,7 @@ const AppointmentSlip = ({
     const reopenedAppointment: Tables<'appointments'> = {
       ...appointment,
       status: 'ongoing',
+      end_time: null,
     };
     updateAppointment({ appointment: reopenedAppointment });
   }, [appointment, updateAppointment]);
@@ -160,6 +158,16 @@ const AppointmentSlip = ({
     }
   }, [appointment.table_number, tableNumber]);
 
+  const handleIsFree = (free: boolean) => {
+    setIsFree(free);
+    updateAppointment({
+      appointment: {
+        ...appointment,
+        free: free,
+      },
+    });
+  };
+
   useEffect(() => {
     if (!isActiveTab) {
       updateTableNumber();
@@ -197,8 +205,8 @@ const AppointmentSlip = ({
           <Checkbox
             id="isFree"
             disabled={isFinished}
-            value={isFree ? 'on' : 'off'}
-            onClick={() => setIsFree(!isFree)}
+            checked={isFree}
+            onCheckedChange={(checked) => handleIsFree(!!checked)}
           />
           <Label htmlFor="isFree">Besplatno {appointment.type === 'play' ? 'igranje' : 'čuvanje'}?</Label>
         </div>
